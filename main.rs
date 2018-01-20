@@ -1,17 +1,19 @@
-use std::net::TcpListener;
+use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::io::{BufReader,BufWriter};
 use std::io::Write;
 use std::io::Read;
 
-//fn error_log(string: error_message){
+fn error_log(error_to_log: &str){
+    //log the error which has been provided...
 
-//}
+
+}
 
 fn get_active_user_ip(user_id: &str) -> &str{
 
     //just a place holder until i've finished fetch IP functionality
-    let ip: &str = "192.168.1.32";
+    let ip: &str = "127.0.0.1";
 
     return ip;
 
@@ -20,19 +22,19 @@ fn get_active_user_ip(user_id: &str) -> &str{
 fn forward_message(mut ip_address_to_send: &str, message: String){
 
     //build the full IP:PORT string for the socket
+    //eventually the port will be gathered from a settings file. Until then hard coded.
     let port: &str = "7979";
     let full_address = format!("{}:{}", ip_address_to_send, port);
 
     //block just to create the socket and forward the message
     {
-        println!("Forwarding message: {}Sending: {}", message, full_address);
+        //hoping to add some form of error handling in case the forward message socket cannot bt established.
+
         //create a socket to send forward the message onto the correct destination
-        //let mut send_stream = TcpStream::connect(full_address).unwrap();
+        let mut send_stream = TcpStream::connect(full_address).unwrap();
 
         //write the message via the socket
-        //send_stream.write(message);
-
-        //close the socket
+        send_stream.write(message.as_bytes());
     }
 
 }
@@ -83,12 +85,10 @@ fn process_manager(stream: std::net::TcpStream){
 
         }
 
-
-
     }else{
 
         //invalid message recieved. log the anomaly
-        //error_log("Invalid message type recieved.");
+        error_log("Invalid message type recieved.");
 
     }
 }
