@@ -8,13 +8,15 @@ use std::io::Read;
 
 //}
 
-fn get_active_user_ip(mut user_id: &str){
+fn get_active_user_ip(user_id: &str) -> &str{
 
-    let mut ip = "192.168.1.32";
+    let ip: &str = "192.168.1.32";
+
+    return ip;
 
 }
 
-fn forward_message(mut ip_address: String, mut message: String){
+fn forward_message(ip_address_to_send: &str, message: String){
 
     //build the full IP:PORT string for the socket
     //no doubt there is an error somewhere in here...
@@ -22,12 +24,12 @@ fn forward_message(mut ip_address: String, mut message: String){
 
     let colon = ":";
 
-    ip_address.push_str(&colon);
+    //ip_address.push_str(&colon);
 
-    ip_address.push_str(&port);
+    //ip_address.push_str(&port);
 
     {
-        println!("Forwarding message: {} - {}", message, ip_address);
+        println!("Forwarding message: {} - {}", message, ip_address_to_send);
         //create a socket to send forward the message onto the correct destination
         //let mut send_stream = TcpStream::connect(full_address).unwrap();
 
@@ -55,7 +57,7 @@ fn process_manager(stream: std::net::TcpStream){
     //first we chack the message has a valid tag else it will be discarded
     //split the message and store it into a vector
 
-    let mut message_sub_data_segments = message_string.split("][");
+    let message_sub_data_segments = message_string.split("][");
 
     let message_vector = message_sub_data_segments.collect::<Vec<&str>>();
 
@@ -71,9 +73,7 @@ fn process_manager(stream: std::net::TcpStream){
         if message_vector[1] == "message" {
 
             //get the target users ip address, need to forward the message some how...
-            let mut ip_address: String = get_active_user_ip(message_vector[2]);
-
-            ip_address = "192.168.1.32";
+            let ip_address: &str = get_active_user_ip(message_vector[2]);
 
             //forward the message to the target
             forward_message(ip_address, message_vector[5].to_string());
