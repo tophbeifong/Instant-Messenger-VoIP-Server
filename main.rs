@@ -10,26 +10,22 @@ use std::io::Read;
 
 fn get_active_user_ip(user_id: &str) -> &str{
 
+    //just a place holder until i've finished fetch IP functionality
     let ip: &str = "192.168.1.32";
 
     return ip;
 
 }
 
-fn forward_message(ip_address_to_send: &str, message: String){
+fn forward_message(mut ip_address_to_send: &str, message: String){
 
     //build the full IP:PORT string for the socket
-    //no doubt there is an error somewhere in here...
-    let port = "7979";
+    let port: &str = "7979";
+    let full_address = format!("{}:{}", ip_address_to_send, port);
 
-    let colon = ":";
-
-    //ip_address.push_str(&colon);
-
-    //ip_address.push_str(&port);
-
+    //block just to create the socket and forward the message
     {
-        println!("Forwarding message: {} - {}", message, ip_address_to_send);
+        println!("Forwarding message: {}Sending: {}", message, full_address);
         //create a socket to send forward the message onto the correct destination
         //let mut send_stream = TcpStream::connect(full_address).unwrap();
 
