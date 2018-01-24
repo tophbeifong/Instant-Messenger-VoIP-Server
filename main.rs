@@ -6,7 +6,7 @@ use std::io::Read;
 
 fn error_log(error_to_log: &str){
     //log the error which has been provided...
-
+    println!("Error Logged!! ({})", error_to_log);
 
 }
 
@@ -28,13 +28,10 @@ fn forward_message(mut ip_address_to_send: &str, message: String){
 
     //block just to create the socket and forward the message
     {
-        //hoping to add some form of error handling in case the forward message socket cannot bt established.
+        //having trouble creating the socket to forward the data on...
 
-        //create a socket to send forward the message onto the correct destination
-        let mut send_stream = TcpStream::connect(full_address).unwrap();
 
-        //write the message via the socket
-        send_stream.write(message.as_bytes());
+        //any hints?
     }
 
 }
@@ -82,6 +79,8 @@ fn process_manager(stream: std::net::TcpStream){
 
             //make call... NOT READY YET!
             //need go build all functionality for calls
+            //calls will work similar to how they work on discord... Only send data when the user speaks.
+
 
         }
 
