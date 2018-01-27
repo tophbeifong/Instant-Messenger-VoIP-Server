@@ -1,13 +1,27 @@
+use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::io::{BufReader,BufWriter};
-use std::io::Write;
-use std::io::Read;
+//use std::io::File;
+//use std::io::{File, Open, Read, Write, ReadWrite};
 
 fn error_log(error_to_log: &str){
     //log the error which has been provided...
-    println!("Error Logged!! ({})", error_to_log);
 
+    //fetch error log filename from settings file... until then its hardcoded :/
+    /*
+    let log_file = "logs/error.log";
+    let p = Path::new(log_file);
+
+    //check the file was opened correctly. Thanks "stackoverflow"
+    let mut f = match File::open_mode(&p, Open, Write) {
+        Ok(f) => f,
+        Err(e) => fail!("Unable to open error log: {}", e),
+    };
+
+    //write the error
+    f.write_line("[ERROR DATE]: {}", error_to_log);
+    */
 }
 
 fn get_active_user_ip(user_id: &str) -> &str{
@@ -19,7 +33,7 @@ fn get_active_user_ip(user_id: &str) -> &str{
 
 }
 
-fn forward_message(mut ip_address_to_send: &str, message: String){
+fn forward_message(mut ip_address_to_send: &str, message: &str){
 
     //build the full IP:PORT string for the socket
     //eventually the port will be gathered from a settings file. Until then hard coded.
@@ -29,9 +43,9 @@ fn forward_message(mut ip_address_to_send: &str, message: String){
     //block just to create the socket and forward the message
     {
         //having trouble creating the socket to forward the data on...
+        let mut forward_socket = TcpStream::connect(full_address).unwrap();
+        let _ = forward_socket.write(b"data to forward");
 
-
-        //any hints?
     }
 
 }
@@ -71,7 +85,7 @@ fn process_manager(stream: std::net::TcpStream){
             let ip_address: &str = get_active_user_ip(message_vector[2]);
 
             //forward the message to the target
-            forward_message(ip_address, message_vector[5].to_string());
+            forward_message(ip_address, message_vector[5]);
 
 
 
@@ -87,7 +101,7 @@ fn process_manager(stream: std::net::TcpStream){
     }else{
 
         //invalid message recieved. log the anomaly
-        error_log("Invalid message type recieved.");
+        error_log("Invalid connection attempt.");
 
     }
 }
@@ -116,7 +130,9 @@ fn main(){
 
             //handle failed connections
             Err(connection_error) => {
-                //error_log("Attemted connection unsuccessful.");
+                let connection_error_string = format!("Listener creation failed: {}", connection_error);
+
+                error_log(connection_error_string);
             }
 
         }
