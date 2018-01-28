@@ -2,14 +2,30 @@ use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::io::{BufReader,BufWriter};
-//use std::io::File;
-//use std::io::{File, Open, Read, Write, ReadWrite};
+use std::fs::File;
 
-fn load_config_files() -> &Vec{
+fn load_config_files(){
+    println!("Loading configuration file...");
+
+    let mut settings_vector: Vec<&str> = Vec::new();
+
     //function returns a vector with the application settings...
     let settings = "config/settings.conf";
+    let handle = File::open(settings).unwrap();
 
-    //open the settings.conf
+    for line in BufReader::new(handle).lines() {
+        let mut line_data = &line.unwrap();
+
+        //get the first charater, if its a # then the line is ignored... e.g. comments
+        let first_character = &line_data[0..1];
+        if first_character != "#"{
+            //sort into a vector
+            let mut settings_info_split = line_data.split("=");
+            let settings_info = settings_info_split.collect::<Vec<&str>>();
+
+            //need to add the values to the "settings_vector"
+        }
+    }
 }
 
 fn error_log(error_to_log: &str){
@@ -131,11 +147,13 @@ fn process_manager(stream: std::net::TcpStream){
 fn main(){
     //Need to open a TCP server and listen... then we parse the relevant data from the transmission and
     //relocate it to the correct correspontand
+    println!("IMServer is starting up...");
+    load_config_files();
 
-    let settings = load_config_files();
-
+    println!("Building TCP server...");
     let tcp_listener = TcpListener::bind("192.168.1.215:7979").unwrap();
 
+    //println!("TCP server established, listening on port {}", );
     //listen for incomming connections
     for stream in tcp_listener.incoming(){
 
