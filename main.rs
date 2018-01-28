@@ -5,6 +5,13 @@ use std::io::{BufReader,BufWriter};
 //use std::io::File;
 //use std::io::{File, Open, Read, Write, ReadWrite};
 
+fn load_config_files() -> &Vec{
+    //function returns a vector with the application settings...
+    let settings = "config/settings.conf";
+
+    //open the settings.conf
+}
+
 fn error_log(error_to_log: &str){
     //log the error which has been provided...
 
@@ -22,29 +29,40 @@ fn error_log(error_to_log: &str){
     //write the error
     f.write_line("[ERROR DATE]: {}", error_to_log);
     */
+    println!("ERROR");
 }
 
 fn get_active_user_ip(user_id: &str) -> &str{
 
     //just a place holder until i've finished fetch IP functionality
-    let ip: &str = "127.0.0.1";
+    let ip: &str = "192.168.1.139";
 
     return ip;
 
 }
 
-fn forward_message(mut ip_address_to_send: &str, message: &str){
+fn forward_message(ip_address_to_send: &str, message: &str){
 
     //build the full IP:PORT string for the socket
     //eventually the port will be gathered from a settings file. Until then hard coded.
     let port: &str = "7979";
     let full_address = format!("{}:{}", ip_address_to_send, port);
 
+    println!("build ip/port string");
+
     //block just to create the socket and forward the message
     {
         //having trouble creating the socket to forward the data on...
+
+        println!("Entering socket block");
+
         let mut forward_socket = TcpStream::connect(full_address).unwrap();
+
+        println!("Socket Done");
+
         let _ = forward_socket.write(b"data to forward");
+
+        println!("data send");
 
     }
 
@@ -66,6 +84,8 @@ fn process_manager(stream: std::net::TcpStream){
     //first we chack the message has a valid tag else it will be discarded
     //split the message and store it into a vector
 
+    println!("RAW DATA: {}", message_string);
+
     let message_sub_data_segments = message_string.split("][");
 
     let message_vector = message_sub_data_segments.collect::<Vec<&str>>();
@@ -83,6 +103,8 @@ fn process_manager(stream: std::net::TcpStream){
 
             //get the target users ip address, need to forward the message some how...
             let ip_address: &str = get_active_user_ip(message_vector[2]);
+
+            println!("Incomming data: {}", message_vector[5]);
 
             //forward the message to the target
             forward_message(ip_address, message_vector[5]);
@@ -110,7 +132,9 @@ fn main(){
     //Need to open a TCP server and listen... then we parse the relevant data from the transmission and
     //relocate it to the correct correspontand
 
-    let tcp_listener = TcpListener::bind("127.0.0.1:7979").unwrap();
+    let settings = load_config_files();
+
+    let tcp_listener = TcpListener::bind("192.168.1.215:7979").unwrap();
 
     //listen for incomming connections
     for stream in tcp_listener.incoming(){
@@ -130,9 +154,10 @@ fn main(){
 
             //handle failed connections
             Err(connection_error) => {
+                //build the error message and pass it to the error_log function
                 let connection_error_string = format!("Listener creation failed: {}", connection_error);
 
-                error_log(connection_error_string);
+                error_log(connection_error_string.as_str());
             }
 
         }
