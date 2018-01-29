@@ -1,0 +1,6 @@
+[package]
+name = "IMServer"
+version = "0.1.0"
+authors = ["Toph"]
+
+[dependencies]

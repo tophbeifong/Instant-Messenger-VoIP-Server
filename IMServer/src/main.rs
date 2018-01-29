@@ -3,14 +3,17 @@ use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::io::{BufReader,BufWriter};
 use std::fs::File;
+use std::collections::HashMap;
 
-fn load_config_files(){
+extern crate backtrace;
+
+fn load_config_files(settings: &str) -> HashMap<String, String>{
+
     println!("Loading configuration file...");
 
-    let mut settings_vector: Vec<&str> = Vec::new();
+    let mut settings_data = HashMap::new();
 
     //function returns a vector with the application settings...
-    let settings = "config/settings.conf";
     let handle = File::open(settings).unwrap();
 
     for line in BufReader::new(handle).lines() {
@@ -24,8 +27,11 @@ fn load_config_files(){
             let settings_info = settings_info_split.collect::<Vec<&str>>();
 
             //need to add the values to the "settings_vector"
+            settings_data.insert(settings_info[0].to_owned(), settings_info[1].to_owned());
         }
     }
+
+    return settings_data;
 }
 
 fn error_log(error_to_log: &str){
@@ -147,11 +153,16 @@ fn process_manager(stream: std::net::TcpStream){
 fn main(){
     //Need to open a TCP server and listen... then we parse the relevant data from the transmission and
     //relocate it to the correct correspontand
+
+    backtrace::trace(|frame| {
+
     println!("IMServer is starting up...");
-    load_config_files();
+    let loaded_settings = load_config_files("config/settings.conf");
+
+    let network_address = format!("{}:{}", loaded_settings["ServerAddress"], loaded_settings["ServrePort"]);
 
     println!("Building TCP server...");
-    let tcp_listener = TcpListener::bind("192.168.1.215:7979").unwrap();
+    let tcp_listener = TcpListener::bind( network_address ).unwrap();
 
     //println!("TCP server established, listening on port {}", );
     //listen for incomming connections
@@ -181,5 +192,7 @@ fn main(){
         }
 
     }
+
+});
 
 }
